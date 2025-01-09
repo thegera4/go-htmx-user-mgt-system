@@ -16,7 +16,7 @@ func GetAllUsers(db *sql.DB) ([]models.User, error) {
 
 	for rows.Next() {
 		user := models.User{}
-		err := rows.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.Name, &user.Category, &user.DOB, &user.Bio, &user.Avatar)
+		err := rows.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.Category, &user.DOB, &user.Bio, &user.Avatar)
 		if err != nil { return nil, err }
 		users = append(users, user)
 	}
@@ -28,7 +28,7 @@ func GetAllUsers(db *sql.DB) ([]models.User, error) {
 func GetUserById(db *sql.DB, id int) (models.User, error) {
 	user := models.User{}
 	query := "SELECT * FROM users WHERE id = ?"
-	err := db.QueryRow(query, id).Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.Name, &user.Category, &user.DOB, &user.Bio, &user.Avatar)
+	err := db.QueryRow(query, id).Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.Category, &user.DOB, &user.Bio, &user.Avatar)
 	if err != nil { return user, err }
 	user.DOBFormatted = user.DOB.Format("2006-01-02") // Format the date using a friendly format
 	return user, nil
@@ -38,7 +38,7 @@ func GetUserById(db *sql.DB, id int) (models.User, error) {
 func GetUserByEmail(db *sql.DB, email string) (models.User, error) {
 	user := models.User{}
 	query := "SELECT * FROM users WHERE email = ?"
-	err := db.QueryRow(query, email).Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.Name, &user.Category, &user.DOB, &user.Bio, &user.Avatar)
+	err := db.QueryRow(query, email).Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.Category, &user.DOB, &user.Bio, &user.Avatar)
 	if err != nil { return user, err }
 	user.DOBFormatted = user.DOB.Format("2006-01-02") // Format the date using a friendly format
 	return user, nil

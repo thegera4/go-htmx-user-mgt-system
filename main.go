@@ -50,7 +50,11 @@ func main() {
 	gRouter.HandleFunc("/", HomeHandler)
 
 	gRouter.HandleFunc("/register", handlers.RegisterPage(db, tmpl)).Methods("GET")
-	
+	gRouter.HandleFunc("/register", handlers.RegisterHandler(db, tmpl)).Methods("POST")
+
+	gRouter.HandleFunc("/login", handlers.LoginPage(db, tmpl)).Methods("GET")
+	gRouter.HandleFunc("/login", handlers.LoginHandler(db, tmpl, Store)).Methods("POST")
+
 	http.ListenAndServe(":8080", gRouter)
 }
 

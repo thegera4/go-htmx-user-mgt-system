@@ -1,0 +1,10 @@
+{{define "autherrors"}}
+<div class="text-danger">
+	<h6>Form Errors:</h6>
+	<ul>
+		{{range .}}
+		<li>{{ . }}</li>
+		{{end}}
+	</ul>
+</div>
+{{end}}
