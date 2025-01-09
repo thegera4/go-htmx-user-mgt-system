@@ -10,14 +10,17 @@ import (
 func GetAllUsers(db *sql.DB) ([]models.User, error) {
 	users := []models.User{}
 	query := "SELECT * FROM users"
+
 	rows, err := db.Query(query)
 	if err != nil { return nil, err }
 	defer rows.Close()
 
 	for rows.Next() {
 		user := models.User{}
-		err := rows.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.Category, &user.DOB, &user.Bio, &user.Avatar)
+
+		err := rows.Scan(&user.Id, &user.Email, &user.Password, &user.Name, &user.Category, &user.DOB, &user.Bio, &user.Avatar)
 		if err != nil { return nil, err }
+
 		users = append(users, user)
 	}
 
@@ -25,12 +28,15 @@ func GetAllUsers(db *sql.DB) ([]models.User, error) {
 }
 
 // Returns a single user from the database with the given user Id.
-func GetUserById(db *sql.DB, id int) (models.User, error) {
+func GetUserById(db *sql.DB, id string) (models.User, error) {
 	user := models.User{}
 	query := "SELECT * FROM users WHERE id = ?"
-	err := db.QueryRow(query, id).Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.Category, &user.DOB, &user.Bio, &user.Avatar)
+
+	err := db.QueryRow(query, id).Scan(&user.Id, &user.Email, &user.Password, &user.Name, &user.Category, &user.DOB, &user.Bio, &user.Avatar)
 	if err != nil { return user, err }
+
 	user.DOBFormatted = user.DOB.Format("2006-01-02") // Format the date using a friendly format
+
 	return user, nil
 }
 
@@ -38,9 +44,12 @@ func GetUserById(db *sql.DB, id int) (models.User, error) {
 func GetUserByEmail(db *sql.DB, email string) (models.User, error) {
 	user := models.User{}
 	query := "SELECT * FROM users WHERE email = ?"
-	err := db.QueryRow(query, email).Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.Category, &user.DOB, &user.Bio, &user.Avatar)
+
+	err := db.QueryRow(query, email).Scan(&user.Id, &user.Email, &user.Password, &user.Name, &user.Category, &user.DOB, &user.Bio, &user.Avatar)
 	if err != nil { return user, err }
+
 	user.DOBFormatted = user.DOB.Format("2006-01-02") // Format the date using a friendly format
+
 	return user, nil
 }
 
@@ -50,11 +59,12 @@ func CreateUser(db *sql.DB, user models.User) error {
 	if err != nil { return err }
 
 	user.Id = id.String() // Convert the id to string and set it on the user
-	stmt, err := db.Prepare("INSERT INTO users (id, name, email, password, category, dob, bio, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+
+	stmt, err := db.Prepare("INSERT INTO users (id, email, password, name, category, dob, bio, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil { return err }
 	defer stmt.Close()
 
-	_, err = stmt.Exec(user.Id, user.Name, user.Email, user.Password, user.Category, user.DOB, user.Bio, user.Avatar)
+	_, err = stmt.Exec(user.Id, user.Email, user.Password, user.Name, user.Category, user.DOB, user.Bio, user.Avatar)
 	if err != nil { return err }
 
 	return nil

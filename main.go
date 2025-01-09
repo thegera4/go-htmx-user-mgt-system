@@ -47,7 +47,7 @@ func main() {
 
 	gRouter := mux.NewRouter()
 
-	gRouter.HandleFunc("/", HomeHandler)
+	gRouter.HandleFunc("/", handlers.HomePage(db, tmpl, Store)).Methods("GET")
 
 	gRouter.HandleFunc("/register", handlers.RegisterPage(db, tmpl)).Methods("GET")
 	gRouter.HandleFunc("/register", handlers.RegisterHandler(db, tmpl)).Methods("POST")

@@ -3,10 +3,10 @@ package handlers
 import (
 	"database/sql"
 	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
-
 	"github.com/gorilla/sessions"
 	"github.com/thegera4/go-htmx-user-mgt-system/pkg/models"
 	"github.com/thegera4/go-htmx-user-mgt-system/pkg/repository"
@@ -143,4 +143,51 @@ func LoginHandler(db *sql.DB, tmpl *template.Template, store *sessions.CookieSto
 		w.Header().Set("HX-Location", "/")
 		w.WriteHeader(http.StatusNoContent)
 	}
+}
+
+// Returns/Loads the "home" template.
+func HomePage(db *sql.DB, tmpl *template.Template, store *sessions.CookieStore) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, _ := CheckLoggedIn(w, r, store, db)
+		if err := tmpl.ExecuteTemplate(w, "home.html", user); err != nil {
+			log.Printf("Error executing template: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+	}
+}
+
+// Checks if a user is already logged in and returns the user info and the id. If no session is available it redirects to the login page.
+func CheckLoggedIn(w http.ResponseWriter, r *http.Request, store *sessions.CookieStore, db *sql.DB) (models.User, string) {
+	session, err := store.Get(r, "logged-in-user")
+	if err != nil {
+		log.Printf("Error getting session: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return models.User{}, ""
+	}
+
+	// Check if the user_id is present in the session
+	userId, ok := session.Values["user_id"]
+	if !ok {
+		log.Println("User ID not found in session, redirecting to /login")
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return models.User{}, ""
+	}
+
+	// Fetch user details from the database
+	user, err := repository.GetUserById(db, userId.(string))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// No user found, possibly handle by clearing the session or redirecting to login
+			session.Options.MaxAge = -1 // Clear the session
+			session.Save(r, w)
+			log.Println("No user found, clearing session and redirecting to /login")
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return models.User{}, ""
+		}
+		log.Printf("Error fetching user by ID: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return models.User{}, ""
+	}
+
+	return user, userId.(string)
 }
