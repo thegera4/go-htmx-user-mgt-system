@@ -307,6 +307,33 @@ func UploadAvatarHandler(db *sql.DB, tmpl *template.Template, store *sessions.Co
 	}
 }
 
+// Logs out a user by clearing the session and redirecting to the login page.
+func LogoutHandler(store *sessions.CookieStore) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		session, err := store.Get(r, "logged-in-user")
+		if err != nil {
+			http.Error(w, "Internal Server error", http.StatusInternalServerError)
+			return
+		}
+
+		// Remove the user from the session
+		delete(session.Values, "user_id")
+
+		// Save the changes to the session
+		if err = session.Save(r, w); err != nil {
+			http.Error(w, "Internal Server error", http.StatusInternalServerError)
+			return
+		}
+
+		// Clear the session cookie
+		session.Options.MaxAge = -1
+		session.Save(r, w)
+
+		// Redirect to the login page
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+	}
+}
+
 // Checks if a user is already logged in and returns the user info and the id. If no session is available it redirects to the login page.
 func CheckLoggedIn(w http.ResponseWriter, r *http.Request, store *sessions.CookieStore, db *sql.DB) (models.User, string) {
 	session, err := store.Get(r, "logged-in-user")

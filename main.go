@@ -68,14 +68,8 @@ func main() {
 	gRouter.HandleFunc("/upload-avatar", handlers.AvatarPage(db, tmpl, Store)).Methods("GET")
 	gRouter.HandleFunc("/upload-avatar", handlers.UploadAvatarHandler(db, tmpl, Store)).Methods("POST")
 
+	gRouter.HandleFunc("/logout", handlers.LogoutHandler(Store)).Methods("GET")
+
 	// Start the server and listen for incoming requests
 	http.ListenAndServe(":8080", gRouter)
-}
-
-// This handler function sends a response to the root URL ("/")
-func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	err := tmpl.ExecuteTemplate(w, "home.html", nil)
-	if err != nil { 
-		http.Error(w, "Error while loading templates: " + err.Error(), http.StatusInternalServerError) 
-	}
 }
