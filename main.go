@@ -42,11 +42,18 @@ func initDB() {
 }
 
 func main() {
+	// Initialize the database connection and defer the closing of the connection
 	initDB()
 	defer db.Close()
 
+	// Create a new router
 	gRouter := mux.NewRouter()
 
+	// Serve static files
+	fileServer := http.FileServer(http.Dir("./uploads"))
+	gRouter.PathPrefix("/uploads/").Handler(http.StripPrefix("/uploads", fileServer))
+
+	// Define the routes
 	gRouter.HandleFunc("/", handlers.HomePage(db, tmpl, Store)).Methods("GET")
 
 	gRouter.HandleFunc("/register", handlers.RegisterPage(db, tmpl)).Methods("GET")
@@ -59,7 +66,9 @@ func main() {
 	gRouter.HandleFunc("/edit", handlers.UpdateProfileHandler(db, tmpl, Store)).Methods("POST")
 
 	gRouter.HandleFunc("/upload-avatar", handlers.AvatarPage(db, tmpl, Store)).Methods("GET")
+	gRouter.HandleFunc("/upload-avatar", handlers.UploadAvatarHandler(db, tmpl, Store)).Methods("POST")
 
+	// Start the server and listen for incoming requests
 	http.ListenAndServe(":8080", gRouter)
 }
 

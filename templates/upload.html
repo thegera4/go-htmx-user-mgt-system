@@ -7,7 +7,9 @@
 		<label for="avatarInput" class="form-label">Select Image</label>
 		<input class="form-control" type="file" id="avatarInput" name="avatar"  accept="image/*" required>
   </div>
-	<button type="submit" class="btn btn-primary">Upload Avatar</button>
+	<button type="submit" class="btn btn-primary" hx-post="/upload-avatar" hx-encoding="multipart/form-data" hx-target="#errors">
+		Upload Avatar
+	</button>
 </form>
 {{template "footer"}}
 {{end}}
