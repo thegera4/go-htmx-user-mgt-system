@@ -15,7 +15,7 @@
           <label for="password" class="form-label">Password</label>
           <input type="password" name="password" class="form-control" id="password" placeholder="******">
         </div>
-        <button hx-post="/login" hx-target="#errors" class="btn btn-primary">Log In</button>
+        <button id="loginButton" hx-post="/login" hx-target="#errors" class="btn btn-primary" onclick="showSpinner()">Log In</button>
       </form>
     </div>
   </div>
