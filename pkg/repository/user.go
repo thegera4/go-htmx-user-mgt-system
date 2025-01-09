@@ -72,8 +72,7 @@ func CreateUser(db *sql.DB, user models.User) error {
 
 // Updates an existing user in the database with the given user Id.
 func UpdateUser(db *sql.DB, id string, user models.User) error {
-	_, err := db.Exec("UPDATE users SET name = ?, category = ?, dob = ?, bio = ? WHERE id = ?",
-		user.Name, user.Category, user.DOB, user.Bio, id)
+	_, err := db.Exec("UPDATE users SET name = ?, dob = ?, bio = ? WHERE id = ?", user.Name, user.DOB, user.Bio, id)
 	return err
 }
 

@@ -1,0 +1,21 @@
+{{define "editProfile"}}
+{{template "header" .}}
+<h4>Edit Profile</h4>
+<form id="editProfileForm" novalidate>
+    <div id="errors"></div>
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ .Name }}" required placeholder="Enter your name">
+    </div>
+    <div class="mb-3">
+        <label for="dob" class="form-label">Date of Birth</label>
+        <input type="date" class="form-control" id="dob" name="dob" value="{{ .DOBFormatted }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="bio" class="form-label">Biography</label>
+        <textarea class="form-control fixed-height-textarea" id="bio" name="bio" value="{{ .DOBFormatted }}" placeholder="Tell us about yourself...">{{.Bio}}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary" hx-post="/edit" hx-target="#errors">Save Changes</button>
+</form>
+{{template "footer"}}
+{{end}}

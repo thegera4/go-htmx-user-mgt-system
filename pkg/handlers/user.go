@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 	"github.com/gorilla/sessions"
 	"github.com/thegera4/go-htmx-user-mgt-system/pkg/models"
@@ -153,6 +154,64 @@ func HomePage(db *sql.DB, tmpl *template.Template, store *sessions.CookieStore) 
 			log.Printf("Error executing template: %v", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
+	}
+}
+
+// Returns/Loads the "editProfile" template.
+func EditPage(db *sql.DB, tmpl *template.Template, store *sessions.CookieStore) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, _ := CheckLoggedIn(w, r, store, db)
+		if err := tmpl.ExecuteTemplate(w, "editProfile", user); err != nil {
+			log.Printf("Error executing template: %v", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+	}
+}
+
+// Updates the user profile in the database.
+func UpdateProfileHandler(db *sql.DB, tmpl *template.Template, store *sessions.CookieStore) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Retrieve the user from the session
+		currentUserProfile, userId := CheckLoggedIn(w, r, store, db)
+
+		// Parse the form data
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, "Failed to Parse Form", http.StatusBadRequest)
+			return
+		}
+
+		var errorMessages []string
+
+		// Collect and validate the form data
+		name := r.FormValue("name")
+		dobStr := r.FormValue("dob")
+		bio := strings.TrimSpace(r.FormValue("bio"))
+
+		if name == "" { errorMessages = append(errorMessages, "Name is required.") }
+		if dobStr == "" { errorMessages = append(errorMessages, "Date of Birth is required.") }
+
+		dob, err := time.Parse("2006-01-02", dobStr)
+		if err != nil { errorMessages = append(errorMessages, "Invalid Date of Birth.") }
+
+		// Handle validation errors
+		if len(errorMessages) > 0 {
+			tmpl.ExecuteTemplate(w, "autherrors", currentUserProfile)
+			return
+		}
+
+		// Create updated user struct
+		updatedUser := models.User{Id: userId, Name: name, DOB: dob, Bio: bio}
+
+		// Call the repository function to update the user
+		if err := repository.UpdateUser(db, userId, updatedUser); err != nil {
+			errorMessages = append(errorMessages, "Failed to update user")
+			tmpl.ExecuteTemplate(w, "autherrors", errorMessages)
+			return
+		}
+
+		// Redirect to the profile page o return success message. Set HX-Location header and return 204 No Content status
+		w.Header().Set("HX-Location", "/")
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
