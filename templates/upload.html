@@ -1,0 +1,13 @@
+{{define "uploadAvatar"}}
+{{template "header" .}}
+<h4>Upload New Avatar</h4>
+<form class="form">
+  <div id="errors"></div>
+  <div class="mb-3">
+		<label for="avatarInput" class="form-label">Select Image</label>
+		<input class="form-control" type="file" id="avatarInput" name="avatar"  accept="image/*" required>
+  </div>
+	<button type="submit" class="btn btn-primary">Upload Avatar</button>
+</form>
+{{template "footer"}}
+{{end}}

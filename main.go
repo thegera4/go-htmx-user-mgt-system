@@ -58,6 +58,8 @@ func main() {
 	gRouter.HandleFunc("/edit", handlers.EditPage(db, tmpl, Store)).Methods("GET")
 	gRouter.HandleFunc("/edit", handlers.UpdateProfileHandler(db, tmpl, Store)).Methods("POST")
 
+	gRouter.HandleFunc("/upload-avatar", handlers.AvatarPage(db, tmpl, Store)).Methods("GET")
+
 	http.ListenAndServe(":8080", gRouter)
 }
 
